@@ -1,9 +1,16 @@
 //패키지
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:instagram/pages/profile.dart';
+import 'package:instagram/provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import './components/notification.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -14,8 +21,19 @@ import './pages/upload.dart';
 //스타일 가져오기//
 import './style/style.dart';
 
-void main() {
-  runApp(MaterialApp(theme: theme, home: MyApp()));
+
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => Store1(),),
+      ChangeNotifierProvider(create: (context) => Store2(),),
+    ],
+      child: MaterialApp(theme: theme, home: MyApp())));
 }
 
 class MyApp extends StatefulWidget {
@@ -30,6 +48,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     getData();
+    saveData();
+    initNotification(context);
   }
 
   getData() async {
@@ -45,6 +65,14 @@ class _MyAppState extends State<MyApp> {
   var postList = [];
   var userImage;
   var userContent;
+
+  saveData() async {
+    var storage = await SharedPreferences.getInstance();
+    var map = {'age': 20};
+    storage.setString('map', jsonEncode(map));
+    var result = storage.getString('map') ?? '없는데요';
+    print(jsonDecode(result));
+  }
 
   setUserContents(a) {
     setState(() {
@@ -82,6 +110,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(onPressed: (){showNotification();},child: Text('알림')),
       appBar: AppBar(
         title: Text('Instagram'),
         actions: [

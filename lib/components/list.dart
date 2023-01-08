@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram/components/detail.dart';
 
 class MainList extends StatefulWidget {
   MainList({Key? key, this.postList}) : super(key: key);
@@ -24,6 +26,14 @@ class _MainListState extends State<MainList> {
                   widget.postList[i]['image'].runtimeType == String
                       ? Image.network(widget.postList[i]['image'].toString())
                       : Image.file(widget.postList[i]['image']),
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (c) => DetailComponent()));
+                      },
+                      child: Text(widget.postList[i]['user'])),
                   Text('좋아요 ${widget.postList[i]['likes'].toString()}'),
                   Text(widget.postList[i]['date'].toString()),
                   Text(widget.postList[i]['content'].toString()),
